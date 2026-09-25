@@ -52,8 +52,8 @@ service cloud.firestore {
       // Both Owners and Employees can read the menu of their restaurant
       allow read: if isLoggedIn() && belongsToRestaurant(resource.data.restaurantId);
       
-      // Only Owners can manage the menu
-      allow write: if isOwner() && belongsToRestaurant(request.resource.data.restaurantId);
+      // Owners and Employees can manage the menu
+      allow write: if isLoggedIn() && belongsToRestaurant(request.resource.data.restaurantId);
     }
 
     // Orders Collection

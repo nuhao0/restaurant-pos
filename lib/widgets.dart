@@ -176,7 +176,10 @@ class Sidebar extends StatelessWidget {
     ];
 
     if (!isOwner) {
-      navItems = navItems.where((item) => item['id'] == ScreenType.pos).toList();
+      navItems = navItems.where((item) => 
+        item['id'] == ScreenType.pos || 
+        item['id'] == ScreenType.menu
+      ).toList();
     }
 
     return Container(
