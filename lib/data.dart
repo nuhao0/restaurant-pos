@@ -146,7 +146,7 @@ final List<MenuItemModel> INITIAL_MENU = [
   MenuItemModel(
     id: "p08",
     categoryId: "pasta",
-    nameKu: "برینج لەگەڵ مەرەق",
+    nameKu: "برنج و شلە",
     nameAr: "أرز مع المرق (شيلة)",
     nameEn: "Rice with Shila",
     priceIQD: 3000.0,
