@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart' hide Order;
+import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
 
 import 'models.dart';
@@ -15,6 +16,7 @@ import 'menu_screen.dart';
 import 'settings_screen.dart';
 import 'reports_screen.dart';
 import 'modals.dart';
+import 'auth_screens.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,7 +39,7 @@ class POSApp extends StatelessWidget {
         scaffoldBackgroundColor: AppColors.bgLight,
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.navy),
       ),
-      home: const MainLayout(),
+      home: const AuthWrapper(child: MainLayout()),
     );
   }
 }
@@ -64,14 +66,29 @@ class _MainLayoutState extends State<MainLayout> {
   StreamSubscription? _menuSub;
   StreamSubscription? _ordersSub;
 
+  String? _currentRestaurantId;
+
   @override
-  void initState() {
-    super.initState();
-    _listenToFirebase();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final userProvider = UserProvider.of(context);
+    if (userProvider != null && userProvider.restaurantId != _currentRestaurantId) {
+      _currentRestaurantId = userProvider.restaurantId;
+      _listenToFirebase();
+    }
   }
 
   void _listenToFirebase() {
-    _menuSub = FirebaseFirestore.instance.collection('menu').snapshots().listen((snap) {
+    _menuSub?.cancel();
+    _ordersSub?.cancel();
+
+    if (_currentRestaurantId == null || _currentRestaurantId!.isEmpty) return;
+
+    _menuSub = FirebaseFirestore.instance
+        .collection('menu')
+        .where('restaurantId', isEqualTo: _currentRestaurantId)
+        .snapshots()
+        .listen((snap) {
       if (snap.docs.isNotEmpty) {
         setState(() {
           _menuItems = snap.docs.map((doc) => MenuItemModel.fromJson(doc.data())).toList();
@@ -79,15 +96,28 @@ class _MainLayoutState extends State<MainLayout> {
       }
     });
 
-    _ordersSub = FirebaseFirestore.instance.collection('orders').orderBy('date', descending: true).snapshots().listen((snap) {
-      setState(() {
-        _orders = snap.docs.map((doc) => Order.fromJson(doc.data())).toList();
-        if (_orders.isNotEmpty) {
-          final maxNum = _orders.map((o) => int.tryParse(o.numStr) ?? 0).reduce((a, b) => a > b ? a : b);
-          _orderNum = maxNum + 1;
-        }
+    final isOwner = UserProvider.of(context)?.isOwner ?? false;
+    if (isOwner) {
+      _ordersSub = FirebaseFirestore.instance
+          .collection('orders')
+          .where('restaurantId', isEqualTo: _currentRestaurantId)
+          .orderBy('date', descending: true)
+          .snapshots()
+          .listen((snap) {
+        setState(() {
+          _orders = snap.docs.map((doc) => Order.fromJson(doc.data())).toList();
+          if (_orders.isNotEmpty) {
+            final maxNum = _orders.map((o) => int.tryParse(o.numStr) ?? 0).reduce((a, b) => a > b ? a : b);
+            _orderNum = maxNum + 1;
+          }
+        });
       });
-    });
+    } else {
+      // Employees generate order numbers based on time to avoid needing read access to history
+      setState(() {
+        _orderNum = (DateTime.now().millisecondsSinceEpoch % 10000).toInt();
+      });
+    }
   }
 
   @override
@@ -162,16 +192,16 @@ class _MainLayoutState extends State<MainLayout> {
           menuItems: _menuItems,
           lang: _lang,
           onUpdate: (items) async {
-            // Write each changed item to Firestore. 
-            // In a real app we'd only write the ones that changed, but for simplicity we can write all or update.
-            // MenuScreen actually updates the whole list. Let's do a batch update.
+            final userProvider = UserProvider.of(context);
+            if (userProvider == null) return;
             final batch = FirebaseFirestore.instance.batch();
             for (var item in items) {
               final doc = FirebaseFirestore.instance.collection('menu').doc(item.id);
-              batch.set(doc, item.toJson());
+              final data = item.toJson();
+              data['restaurantId'] = userProvider.restaurantId;
+              batch.set(doc, data);
             }
             await batch.commit();
-            // _menuItems will be automatically updated by the stream.
           },
         );
       case ScreenType.settings:
@@ -198,6 +228,7 @@ class _MainLayoutState extends State<MainLayout> {
           cashierName: _cashierName,
           lang: _lang,
           onConfirm: (payMethod, paid, discount, printReceipt) {
+            final userProvider = UserProvider.of(context)!;
             final subtotal = _cart.fold<double>(0, (s, ci) => s + (ci.item.price * ci.qty));
             final total = (subtotal - discount) < 0 ? 0.0 : (subtotal - discount);
               final newOrder = Order(
@@ -216,12 +247,17 @@ class _MainLayoutState extends State<MainLayout> {
               );
               
               // Save to Firebase
-              FirebaseFirestore.instance.collection('orders').doc(newOrder.id).set(newOrder.toJson());
+              final data = newOrder.toJson();
+              data['restaurantId'] = userProvider.restaurantId;
+              FirebaseFirestore.instance.collection('orders').doc(newOrder.id).set(data);
 
               setState(() {
                 // We no longer need to insert it manually into _orders because StreamBuilder will fetch it.
                 // But we clear the cart and handle the receipt.
                 _cart.clear();
+                if (!userProvider.isOwner) {
+                  _orderNum = (DateTime.now().millisecondsSinceEpoch % 10000).toInt();
+                }
                 if (printReceipt) {
                   _showReceipt = newOrder;
                 }
@@ -265,7 +301,9 @@ class _MainLayoutState extends State<MainLayout> {
                       _navigate(s);
                       Navigator.pop(context); // close drawer
                     },
-                    onLogout: () {},
+                    onLogout: () {
+                    FirebaseAuth.instance.signOut();
+                  },
                   ),
                 )
               : null,
@@ -276,7 +314,9 @@ class _MainLayoutState extends State<MainLayout> {
                   screen: _screen,
                   lang: _lang,
                   onNavigate: _navigate,
-                  onLogout: () {},
+                  onLogout: () {
+                    FirebaseAuth.instance.signOut();
+                  },
                 ),
               Expanded(
                 child: Column(

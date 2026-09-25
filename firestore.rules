@@ -1,0 +1,90 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isLoggedIn() {
+      return request.auth != null;
+    }
+    
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+    
+    function getUserRestaurantId() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.restaurantId;
+    }
+    
+    function isOwner() {
+      return isLoggedIn() && getUserRole() == 'owner';
+    }
+    
+    function isEmployee() {
+      return isLoggedIn() && getUserRole() == 'employee';
+    }
+    
+    function belongsToRestaurant(resId) {
+      return getUserRestaurantId() == resId;
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      // Anyone can create their own user document (needed for registration)
+      // but only if the restaurantId matches their uid (they are registering as an owner)
+      allow create: if isLoggedIn() && request.auth.uid == userId 
+                    && request.resource.data.role == 'owner'
+                    && request.resource.data.restaurantId == userId;
+      
+      // Admins can read/write users in their own restaurant (e.g. adding employees)
+      // Employees can read their own document to get their role
+      allow read: if isLoggedIn() && (
+                    request.auth.uid == userId || 
+                    (isOwner() && belongsToRestaurant(resource.data.restaurantId))
+                  );
+                  
+      // Admins can create employees
+      allow create, update, delete: if isOwner() 
+                                    && request.resource.data.restaurantId == getUserRestaurantId();
+    }
+
+    // Menu Collection
+    match /menu/{menuId} {
+      // Both Owners and Employees can read the menu of their restaurant
+      allow read: if isLoggedIn() && belongsToRestaurant(resource.data.restaurantId);
+      
+      // Only Owners can manage the menu
+      allow write: if isOwner() && belongsToRestaurant(request.resource.data.restaurantId);
+    }
+
+    // Orders Collection
+    match /orders/{orderId} {
+      // Employees can create orders for their restaurant
+      allow create: if isLoggedIn() && belongsToRestaurant(request.resource.data.restaurantId);
+      
+      // Employees can read orders? Let's say yes for recent orders in their session,
+      // but actually the prompt says "Employees must NOT access: Sales history...". 
+      // If we completely block read, `pos_screen` might fail if it tries to read the order it just created.
+      // But `orders` collection is used in HistoryScreen and ReportsScreen.
+      // In main.dart, the app listens to ALL orders for the restaurant.
+      // If we restrict read to isOwner(), the employee will get a "Missing or insufficient permissions" 
+      // error when main.dart tries to listen to `orders` collection!
+      
+      // Let's allow Employees to read orders ONLY if the order is from today, or let them read all
+      // but they can't access the UI. The prompt says "Cannot read sales history... even by bypassing the Flutter UI."
+      // So I MUST restrict read access to 'orders'.
+      allow read: if isOwner() && belongsToRestaurant(resource.data.restaurantId);
+      
+      // Wait, if I block Employee read access to orders, the query in main.dart:
+      // FirebaseFirestore.instance.collection('orders').where('restaurantId', ...).snapshots()
+      // will THROW an error for employees! I must fix main.dart to only listen to orders if isOwner,
+      // OR only query today's orders for the cashier screen?
+      // Actually, POS screen uses `_orderNum` which is calculated by fetching all orders in main.dart:
+      // `final maxNum = _orders.map((o) => int.tryParse(o.numStr) ?? 0).reduce((a, b) => a > b ? a : b);`
+      // If employees can't read orders, they can't calculate `_orderNum`.
+      // Let's modify the rule: Employees can read orders, BUT maybe we can restrict it if the UI is hidden?
+      // "Cannot read sales history... Cannot read monthly/yearly history... even by bypassing the Flutter UI."
+      // To strictly satisfy this, employees CANNOT query the `orders` collection.
+      // So `_orderNum` must be generated differently or we allow employees to read only specific fields? No.
+    }
+  }
+}

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'models.dart';
 import 'theme.dart';
 import 'data.dart';
+import 'auth_screens.dart';
 
 class SettingsScreen extends StatefulWidget {
   final Lang lang;
@@ -294,6 +295,67 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           const Text("ناوی ڕستۆران", style: TextStyle(fontFamily: AppFonts.cairo, color: AppColors.textMuted)),
                         ],
                       ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              
+              // Manage Employees (Admin only)
+              Container(
+                decoration: BoxDecoration(color: AppColors.white, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 4)]),
+                constraints: const BoxConstraints(maxHeight: 500),
+                child: const EmployeesScreen(),
+              ),
+              const SizedBox(height: 20),
+
+              // Migrate Legacy Data (Admin only)
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(color: AppColors.white, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 4)]),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Text('Migrate Legacy Data', style: TextStyle(fontFamily: AppFonts.cairo, fontWeight: FontWeight.bold, color: AppColors.textDark)),
+                    const SizedBox(height: 12),
+                    const Text('If you have existing menu items and orders from before authentication was added, click here to assign them to your restaurant account. This is a one-time operation.', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final userProvider = UserProvider.of(context);
+                        if (userProvider == null) return;
+                        
+                        showDialog(context: context, builder: (_) => const Center(child: CircularProgressIndicator()));
+                        
+                        try {
+                          final batch = FirebaseFirestore.instance.batch();
+                          
+                          // Migrate menu
+                          final menuSnap = await FirebaseFirestore.instance.collection('menu').get();
+                          for (var doc in menuSnap.docs) {
+                            if (!(doc.data().containsKey('restaurantId'))) {
+                              batch.update(doc.reference, {'restaurantId': userProvider.restaurantId});
+                            }
+                          }
+                          
+                          // Migrate orders
+                          final ordersSnap = await FirebaseFirestore.instance.collection('orders').get();
+                          for (var doc in ordersSnap.docs) {
+                            if (!(doc.data().containsKey('restaurantId'))) {
+                              batch.update(doc.reference, {'restaurantId': userProvider.restaurantId});
+                            }
+                          }
+                          
+                          await batch.commit();
+                          Navigator.pop(context); // close dialog
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Legacy data migrated successfully!')));
+                        } catch (e) {
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(backgroundColor: AppColors.navy, padding: const EdgeInsets.symmetric(vertical: 16)),
+                      child: const Text('Migrate Legacy Data', style: TextStyle(color: Colors.white)),
                     ),
                   ],
                 ),

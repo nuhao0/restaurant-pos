@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:intl/intl.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'auth_screens.dart';
 import 'models.dart';
 import 'theme.dart';
 import 'utils.dart';
@@ -163,14 +165,19 @@ class Sidebar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = (String k) => TR[lang]?[k] ?? k;
+    final isOwner = UserProvider.of(context)?.isOwner ?? false;
 
-    final navItems = [
+    var navItems = [
       {'id': ScreenType.pos, 'label': t('pos'), 'icon': LucideIcons.home},
       {'id': ScreenType.history, 'label': t('history'), 'icon': LucideIcons.list},
       {'id': ScreenType.reports, 'label': t('daily'), 'icon': LucideIcons.barChart2},
       {'id': ScreenType.menu, 'label': t('menuMgmt'), 'icon': LucideIcons.package},
       {'id': ScreenType.settings, 'label': t('settings'), 'icon': LucideIcons.settings},
     ];
+
+    if (!isOwner) {
+      navItems = navItems.where((item) => item['id'] == ScreenType.pos).toList();
+    }
 
     return Container(
       width: 224,
