@@ -114,6 +114,14 @@ class UserProvider extends InheritedWidget {
   String get role => userData['role'] ?? 'employee';
   String get restaurantId => userData['restaurantId'] ?? '';
   bool get isOwner => role == 'owner' || user.email == 'mmhouse428@gmail.com';
+  
+  String get name {
+    String n = userData['name'] ?? '';
+    if (n.isNotEmpty) return n;
+    String e = user.email ?? '';
+    if (e.contains('@')) return e.split('@')[0];
+    return 'User';
+  }
 
   @override
   bool updateShouldNotify(UserProvider oldWidget) {
@@ -129,6 +137,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final _nameCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
   final _passCtrl = TextEditingController();
   bool _isLogin = true;
@@ -147,10 +156,20 @@ class _LoginScreenState extends State<LoginScreen> {
           password: _passCtrl.text.trim(),
         );
       } else {
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        UserCredential cred = await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: _emailCtrl.text.trim(),
           password: _passCtrl.text.trim(),
         );
+        // Save name immediately for owner
+        if (_nameCtrl.text.trim().isNotEmpty) {
+          await FirebaseFirestore.instance.collection('users').doc(cred.user!.uid).set({
+            'name': _nameCtrl.text.trim(),
+            'email': _emailCtrl.text.trim(),
+            'role': 'owner',
+            'restaurantId': cred.user!.uid,
+            'createdAt': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
+        }
       }
     } on FirebaseAuthException catch (e) {
       setState(() => _error = e.message ?? 'Authentication failed');
@@ -219,6 +238,17 @@ class _LoginScreenState extends State<LoginScreen> {
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(color: Colors.red.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
                     child: Text(_error, style: const TextStyle(color: Colors.red, fontFamily: AppFonts.cairo)),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                if (!_isLogin) ...[
+                  TextField(
+                    controller: _nameCtrl,
+                    decoration: InputDecoration(
+                      labelText: 'Your Name (Optional)',
+                      prefixIcon: const Icon(Icons.person_outline),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
                   ),
                   const SizedBox(height: 16),
                 ],
@@ -318,11 +348,13 @@ class EmployeesScreen extends StatefulWidget {
 }
 
 class _EmployeesScreenState extends State<EmployeesScreen> {
+  final _nameCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
   final _passCtrl = TextEditingController();
   bool _loading = false;
 
   Future<void> _addEmployee() async {
+    final name = _nameCtrl.text.trim();
     final email = _emailCtrl.text.trim();
     final pass = _passCtrl.text.trim();
     if (email.isEmpty || pass.length < 6) return;
@@ -342,6 +374,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
           
       // Save role to firestore
       await FirebaseFirestore.instance.collection('users').doc(cred.user!.uid).set({
+        'name': name.isEmpty ? email.split('@')[0] : name,
         'email': email,
         'role': 'employee',
         'restaurantId': userProvider.restaurantId,
@@ -350,6 +383,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
       
       await app.delete(); // cleanup
       
+      _nameCtrl.clear();
       _emailCtrl.clear();
       _passCtrl.clear();
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Employee added successfully!')));
@@ -376,8 +410,9 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
             runSpacing: 16,
             crossAxisAlignment: WrapCrossAlignment.end,
             children: [
-              SizedBox(width: 300, child: TextField(controller: _emailCtrl, decoration: const InputDecoration(labelText: 'Employee Email', border: OutlineInputBorder()))),
-              SizedBox(width: 300, child: TextField(controller: _passCtrl, decoration: const InputDecoration(labelText: 'Password', border: OutlineInputBorder()))),
+              SizedBox(width: 250, child: TextField(controller: _nameCtrl, decoration: const InputDecoration(labelText: 'Name (Optional)', border: OutlineInputBorder()))),
+              SizedBox(width: 250, child: TextField(controller: _emailCtrl, decoration: const InputDecoration(labelText: 'Employee Email', border: OutlineInputBorder()))),
+              SizedBox(width: 250, child: TextField(controller: _passCtrl, decoration: const InputDecoration(labelText: 'Password', border: OutlineInputBorder()))),
               _loading 
                 ? const CircularProgressIndicator()
                 : ElevatedButton(
@@ -406,8 +441,8 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                     final data = docs[index].data() as Map<String, dynamic>;
                     return ListTile(
                       leading: const Icon(Icons.person),
-                      title: Text(data['email'] ?? ''),
-                      subtitle: Text('Role: ${data['role']}'),
+                      title: Text(data['name'] ?? data['email'] ?? ''),
+                      subtitle: Text('Role: ${data['role']} | Email: ${data['email']}'),
                       trailing: IconButton(
                         icon: const Icon(Icons.delete, color: Colors.red),
                         onPressed: () {

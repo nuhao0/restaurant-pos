@@ -61,7 +61,7 @@ class _MainLayoutState extends State<MainLayout> {
   bool _showCheckout = false;
   bool _autoPrint = true;
   Order? _showReceipt;
-  String _cashierName = "ئارام احمد";
+  String _cashierName = "";
   
   StreamSubscription? _menuSub;
   StreamSubscription? _ordersSub;
@@ -72,9 +72,14 @@ class _MainLayoutState extends State<MainLayout> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final userProvider = UserProvider.of(context);
-    if (userProvider != null && userProvider.restaurantId != _currentRestaurantId) {
-      _currentRestaurantId = userProvider.restaurantId;
-      _listenToFirebase();
+    if (userProvider != null) {
+      if (_cashierName.isEmpty) {
+        _cashierName = userProvider.name;
+      }
+      if (userProvider.restaurantId != _currentRestaurantId) {
+        _currentRestaurantId = userProvider.restaurantId;
+        _listenToFirebase();
+      }
     }
   }
 
@@ -210,7 +215,13 @@ class _MainLayoutState extends State<MainLayout> {
           cashierName: _cashierName,
           autoPrint: _autoPrint,
           onLangChange: (l) => setState(() => _lang = l),
-          onCashierChange: (name) => setState(() => _cashierName = name),
+          onCashierChange: (name) {
+            setState(() => _cashierName = name);
+            final userProvider = UserProvider.of(context);
+            if (userProvider != null) {
+              FirebaseFirestore.instance.collection('users').doc(userProvider.user.uid).update({'name': name});
+            }
+          },
           onAutoPrintChange: (val) => setState(() => _autoPrint = val),
         );
     }
