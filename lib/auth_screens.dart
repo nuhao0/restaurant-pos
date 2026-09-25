@@ -78,7 +78,11 @@ class _AuthWrapperState extends State<AuthWrapper> {
       _userData!['role'] = 'owner';
     }
 
-    if (!_user!.emailVerified) {
+    bool isEmployee = _userData != null && _userData!['role'] == 'employee';
+    bool isMasterAdmin = _user!.email == 'mmhouse428@gmail.com';
+    
+    // Employees (created by admin) and the master admin do not need to verify their email to log in
+    if (!isEmployee && !isMasterAdmin && !_user!.emailVerified) {
       return VerifyEmailScreen(user: _user!);
     }
     
