@@ -1,0 +1,231 @@
+import re
+import json
+import urllib.request
+import urllib.parse
+import time
+
+old_data = """
+  MenuItemModel(id:"p01", nameKu:"پاستای ئەلفریدۆ",                     nameAr:"معكرونة الفريدو",             price:5000,  cat:"pasta",    img:u("1621996346565-e3dbc646d9a9"), active:true),
+  MenuItemModel(id:"p02", nameKu:"پاستای ئەلفریدۆ لەگەڵ گۆشت",          nameAr:"معكرونة الفريدو باللحم",      price:5000,  cat:"pasta",    img:u("1563379926898-05f4575a45d8"), active:true),
+  MenuItemModel(id:"p03", nameKu:"پاستای سۆسی سوور لەگەڵ مریشک",        nameAr:"معكرونة صلصة حمراء بالدجاج", price:5000,  cat:"pasta",    img:u("1567608346072-b31551b7ee48"), active:true),
+  MenuItemModel(id:"p04", nameKu:"پاستای سۆسی تێکەڵ",                   nameAr:"معكرونة بصلصات مشكلة",       price:5000,  cat:"pasta",    img:u("1621996346565-e3dbc646d9a9"), active:true),
+  MenuItemModel(id:"p05", nameKu:"پاستای سۆس و گۆشت",                   nameAr:"معكرونة بالصلصة واللحم",     price:5000,  cat:"pasta",    img:u("1563379926898-05f4575a45d8"), active:true),
+  MenuItemModel(id:"p06", nameKu:"پاستای موزاریلا",                      nameAr:"معكرونة بجبن الموزاريلا",    price:6000,  cat:"pasta",    img:u("1569050467447-ce54b3bbc37d"), active:true),
+  MenuItemModel(id:"p07", nameKu:"ریزۆ",                                 nameAr:"ريزو",                        price:5000,  cat:"pasta",    img:u("1476124369491-e7addf5db371"), active:true),
+  MenuItemModel(id:"p08", nameKu:"برینج لەگەڵ مەرەق (شیلە)",            nameAr:"أرز مع المرق (شيلة)",        price:3000,  cat:"pasta",    img:u("1536304929831-ee1ca9d44906"), active:true),
+  MenuItemModel(id:"p09", nameKu:"کباب لەگەڵ برینج",                    nameAr:"كباب مع أرز",                 price:5000,  cat:"pasta",    img:u("1544025162-d76538fd41e3"),   active:true),
+  MenuItemModel(id:"p10", nameKu:"تیکای مریشک لەگەڵ برینج",             nameAr:"تكة دجاج مع أرز",            price:4000,  cat:"pasta",    img:u("1598103442097-8b74394b95c8"), active:true),
+  MenuItemModel(id:"p11", nameKu:"تیکای گۆشت لەگەڵ برینج",             nameAr:"تكة لحم مع أرز",             price:5000,  cat:"pasta",    img:u("1555939594-58d7cb561ad1"),   active:true),
+  MenuItemModel(id:"p12", nameKu:"بریانی MM House",                     nameAr:"برياني MM House",             price:5000,  cat:"pasta",    img:u("1603360946369-dc9bb6258143"), active:true),
+  MenuItemModel(id:"p13", nameKu:"برینج لەگەڵ مریشکی قواتە",           nameAr:"أرز مع دجاج قواطة",          price:5500,  cat:"pasta",    img:u("1536304929831-ee1ca9d44906"), active:true),
+  MenuItemModel(id:"p14", nameKu:"برینج لەگەڵ گازی گۆشت",              nameAr:"أرز مع غاز اللحم",           price:5000,  cat:"pasta",    img:u("1603360946369-dc9bb6258143"), active:true),
+  MenuItemModel(id:"p15", nameKu:"برینج لەگەڵ گازی مریشک",             nameAr:"أرز مع غاز الدجاج",          price:5000,  cat:"pasta",    img:u("1598103442097-8b74394b95c8"), active:true),
+  
+  MenuItemModel(id:"g01", nameKu:"یەک شیش کباب",                       nameAr:"شيش كباب واحد",               price:3000,  cat:"grills",   img:u("1544025162-d76538fd41e3"),   active:true),
+  MenuItemModel(id:"g02", nameKu:"جگەر",                                nameAr:"كبد",                         price:3000,  cat:"grills",   img:u("1555939594-58d7cb561ad1"),   active:true),
+  MenuItemModel(id:"g03", nameKu:"تیکای مریشک",                        nameAr:"تكة دجاج",                    price:2000,  cat:"grills",   img:u("1532550907401-a500c9a57435"), active:true),
+  MenuItemModel(id:"g04", nameKu:"باڵی مریشک",                         nameAr:"أجنحة دجاج",                  price:3500,  cat:"grills",   img:u("1527477396000-e27163b481c2"), active:true),
+  MenuItemModel(id:"g05", nameKu:"دوو شیش کباب",                       nameAr:"شيشتا كباب",                  price:9000,  cat:"grills",   img:u("1544025162-d76538fd41e3"),   active:true),
+  MenuItemModel(id:"g06", nameKu:"تەبسی کباب تێکەڵ MM House",         nameAr:"صينية مشاوي مشكلة MM House",  price:25000, cat:"grills",   img:u("1555939594-58d7cb561ad1"),   active:true),
+  MenuItemModel(id:"g07", nameKu:"یەک شیش کباب تێکەڵ (محشی)",         nameAr:"شيش كباب مشكل (محشي)",        price:3500,  cat:"grills",   img:u("1544025162-d76538fd41e3"),   active:true),
+  MenuItemModel(id:"g08", nameKu:"تەشریبی گاز",                        nameAr:"تشريب غاز",                   price:5000,  cat:"grills",   img:u("1529006557810-274b9b2fc783"), active:true),
+  MenuItemModel(id:"g09", nameKu:"مریشکی تاوکراوی سادە",               nameAr:"دجاج مشوي بسيط",              price:13000, cat:"grills",   img:u("1598103442097-8b74394b95c8"), active:true),
+  MenuItemModel(id:"g10", nameKu:"مریشکی تاوکراو لەگەڵ لیمۆ",         nameAr:"دجاج مشوي بالليمون",          price:14000, cat:"grills",   img:u("1598103442097-8b74394b95c8"), active:true),
+  MenuItemModel(id:"g11", nameKu:"مریشکی تاوکراو لەگەڵ مەنگۆ",        nameAr:"دجاج مشوي بالمانجو",          price:14000, cat:"grills",   img:u("1598103442097-8b74394b95c8"), active:true),
+  MenuItemModel(id:"g12", nameKu:"مریشکی تاوکراو لەگەڵ بیبەر",        nameAr:"دجاج مشوي بالفلفل",           price:14000, cat:"grills",   img:u("1598103442097-8b74394b95c8"), active:true),
+  MenuItemModel(id:"g13", nameKu:"ساندویچی گازی مریشک",                nameAr:"ساندويتش غاز دجاج",           price:3500,  cat:"grills",   img:u("1550950158-d0d960dff596"),   active:true),
+  MenuItemModel(id:"g14", nameKu:"گازی گۆشت",                          nameAr:"غاز اللحم",                   price:4000,  cat:"grills",   img:u("1555939594-58d7cb561ad1"),   active:true),
+  MenuItemModel(id:"g15", nameKu:"یەک تەبسی گازی گۆشت",               nameAr:"صينية غاز لحم",               price:6000,  cat:"grills",   img:u("1555939594-58d7cb561ad1"),   active:true),
+  
+  MenuItemModel(id:"s01", nameKu:"یەک تەبسی شاوەرما",                  nameAr:"صينية شاورما",                price:6000,  cat:"shawarma", img:u("1529006557810-274b9b2fc783"), active:true),
+  MenuItemModel(id:"s02", nameKu:"شاوەرمای مریشک",                     nameAr:"شاورما دجاج",                 price:2000,  cat:"shawarma", img:u("1529006557810-274b9b2fc783"), active:true),
+  MenuItemModel(id:"s03", nameKu:"شاوەرمای گۆشت",                      nameAr:"شاورما لحم",                  price:2500,  cat:"shawarma", img:u("1529006557810-274b9b2fc783"), active:true),
+  MenuItemModel(id:"s04", nameKu:"بێرگەر",                              nameAr:"برجر",                        price:3500,  cat:"shawarma", img:u("1568901346375-23c9450c58cd"), active:true),
+  MenuItemModel(id:"s05", nameKu:"بێرگەری گاوی لەگەڵ پەنیر",           nameAr:"برجر لحم بالجبن",             price:4000,  cat:"shawarma", img:u("1568901346375-23c9450c58cd"), active:true),
+  MenuItemModel(id:"s06", nameKu:"بێرگەری مریشک",                      nameAr:"برجر دجاج",                   price:3000,  cat:"shawarma", img:u("1550950158-d0d960dff596"),   active:true),
+  MenuItemModel(id:"s07", nameKu:"بێرگەری مریشک لەگەڵ پەنیر",         nameAr:"برجر دجاج بالجبن",            price:3500,  cat:"shawarma", img:u("1550950158-d0d960dff596"),   active:true),
+  MenuItemModel(id:"s08", nameKu:"بێرگەری تاوی ئاگر",                  nameAr:"برجر مشوي على النار",         price:5000,  cat:"shawarma", img:u("1568901346375-23c9450c58cd"), active:true),
+  
+  MenuItemModel(id:"k01", nameKu:"مریشکی کینتاکی — ١ پارچە",          nameAr:"دجاج كنتاكي — قطعة",          price:2000,  cat:"kentucky", img:u("1562967914-608f82629710"),   active:true),
+  MenuItemModel(id:"k02", nameKu:"مریشکی کینتاکی — ٢ پارچە",          nameAr:"دجاج كنتاكي — قطعتان",        price:4000,  cat:"kentucky", img:u("1562967914-608f82629710"),   active:true),
+  MenuItemModel(id:"k03", nameKu:"مریشکی کینتاکی — ٤-٥ پارچە",        nameAr:"دجاج كنتاكي — ٤-٥ قطع",      price:7500,  cat:"kentucky", img:u("1562967914-608f82629710"),   active:true),
+  MenuItemModel(id:"k04", nameKu:"مریشکی کینتاکی — ٨ پارچە",          nameAr:"دجاج كنتاكي — ٨ قطع",        price:14500, cat:"kentucky", img:u("1562967914-608f82629710"),   active:true),
+  
+  MenuItemModel(id:"a01", nameKu:"بەژێی پیاز",                         nameAr:"باجي بصل",                    price:3000,  cat:"sides",    img:u("1541014741259-de529411b96a"), active:true),
+  MenuItemModel(id:"a02", nameKu:"سامبووسای گۆشت",                     nameAr:"سمبوسة لحم",                  price:3500,  cat:"sides",    img:u("1601050690597-df0568f70950"), active:true),
+  MenuItemModel(id:"a03", nameKu:"سامبووسای سەوزە",                    nameAr:"سمبوسة خضار",                 price:3000,  cat:"sides",    img:u("1601050690597-df0568f70950"), active:true),
+  MenuItemModel(id:"a04", nameKu:"فینگەر فرایز",                       nameAr:"بطاطا مقلية",                 price:2000,  cat:"sides",    img:u("1573080496219-bb080dd4f877"), active:true),
+  MenuItemModel(id:"a05", nameKu:"فینگەر فرایز لەگەڵ سۆس",            nameAr:"بطاطا مقلية بالصوص",          price:2500,  cat:"sides",    img:u("1573080496219-bb080dd4f877"), active:true),
+  MenuItemModel(id:"a06", nameKu:"فینگەر وێجز لەگەڵ گۆشت",            nameAr:"بطاطا ويدجز باللحم",          price:6000,  cat:"sides",    img:u("1573080496219-bb080dd4f877"), active:true),
+  MenuItemModel(id:"a07", nameKu:"فینگەر وێجز لەگەڵ سۆس",             nameAr:"بطاطا ويدجز بالصوص",          price:4000,  cat:"sides",    img:u("1573080496219-bb080dd4f877"), active:true),
+  MenuItemModel(id:"a08", nameKu:"فەلافەل",                            nameAr:"فلافل",                       price:750,   cat:"sides",    img:u("1601050690597-df0568f70950"), active:true),
+  MenuItemModel(id:"a09", nameKu:"فەلافەلی تیژ لەگەڵ نان",            nameAr:"فلافل حار مع خبز النان",       price:1000,  cat:"sides",    img:u("1601050690597-df0568f70950"), active:true),
+  MenuItemModel(id:"a10", nameKu:"کروکێت",                             nameAr:"كروكيت",                      price:2500,  cat:"sides",    img:u("1573080496219-bb080dd4f877"), active:true),
+  MenuItemModel(id:"a11", nameKu:"حەلقەی پیاز",                        nameAr:"حلقات البصل",                 price:2500,  cat:"sides",    img:u("1541014741259-de529411b96a"), active:true),
+  MenuItemModel(id:"a12", nameKu:"تەبسی پێشخواردنی گەورە",            nameAr:"صينية مقبلات كبيرة",          price:4000,  cat:"sides",    img:u("1577303935007-0d306ee638cf"), active:true),
+  MenuItemModel(id:"a13", nameKu:"تەبسی پێشخواردنی ناوەند",           nameAr:"صينية مقبلات وسط",            price:3000,  cat:"sides",    img:u("1577303935007-0d306ee638cf"), active:true),
+  MenuItemModel(id:"a14", nameKu:"تەبسی پێشخواردنی بچووک",            nameAr:"صينية مقبلات صغيرة",          price:2000,  cat:"sides",    img:u("1577303935007-0d306ee638cf"), active:true),
+  
+  MenuItemModel(id:"d01", nameKu:"ئاو",                                nameAr:"ماء",                         price:250,   cat:"drinks",   img:u("1548839140-29a749e1cf4d"),   active:true),
+  MenuItemModel(id:"d02", nameKu:"پێپسی",                              nameAr:"بيبسي",                       price:500,   cat:"drinks",   img:u("1622483767028-3f66f32aef97"), active:true),
+  MenuItemModel(id:"d03", nameKu:"کۆلا",                               nameAr:"كولا",                        price:500,   cat:"drinks",   img:u("1622483767028-3f66f32aef97"), active:true),
+  MenuItemModel(id:"d04", nameKu:"سپرایت",                             nameAr:"سبرايت",                      price:500,   cat:"drinks",   img:u("1622483767028-3f66f32aef97"), active:true),
+  MenuItemModel(id:"d05", nameKu:"پێپسی دایت",                        nameAr:"بيبسي دايت",                  price:500,   cat:"drinks",   img:u("1622483767028-3f66f32aef97"), active:true),
+  MenuItemModel(id:"d06", nameKu:"پێپسی زیرۆ",                        nameAr:"بيبسي زيرو",                  price:500,   cat:"drinks",   img:u("1622483767028-3f66f32aef97"), active:true),
+  MenuItemModel(id:"d07", nameKu:"دۆ",                                 nameAr:"دو",                          price:1000,  cat:"drinks",   img:u("1558113583-d75f23fcb8a9"),   active:true),
+  MenuItemModel(id:"d08", nameKu:"ماستاو",                             nameAr:"ماستاو (عيران)",               price:1000,  cat:"drinks",   img:u("1596151163116-98a5033814c2"), active:true),
+  MenuItemModel(id:"d09", nameKu:"میراندا",                            nameAr:"ميراندا",                     price:500,   cat:"drinks",   img:u("1622483767028-3f66f32aef97"), active:true),
+  MenuItemModel(id:"d10", nameKu:"فانتا",                              nameAr:"فانتا",                       price:500,   cat:"drinks",   img:u("1622483767028-3f66f32aef97"), active:true),
+  MenuItemModel(id:"d11", nameKu:"سێڤ ئەپ",                           nameAr:"سفن أب",                      price:500,   cat:"drinks",   img:u("1622483767028-3f66f32aef97"), active:true),
+  MenuItemModel(id:"d12", nameKu:"چای",                                nameAr:"شاي",                         price:250,   cat:"drinks",   img:u("1564890369478-c89ca3d9cde4"), active:true),
+"""
+
+query_map = {
+    "پاستای ئەلفریدۆ": ("Alfredo Pasta", "alfredo pasta plate"),
+    "پاستای ئەلفریدۆ لەگەڵ گۆشت": ("Alfredo Pasta with Meat", "alfredo pasta plate meat"),
+    "پاستای سۆسی سوور لەگەڵ مریشک": ("Red Sauce Pasta with Chicken", "red sauce pasta chicken"),
+    "پاستای سۆسی تێکەڵ": ("Mixed Sauce Pasta", "mixed sauce pasta"),
+    "پاستای سۆس و گۆشت": ("Pasta with Sauce and Meat", "pasta meat sauce"),
+    "پاستای موزاریلا": ("Mozzarella Pasta", "mozzarella pasta plate"),
+    "ریزۆ": ("Rizo", "rizo chicken rice"),
+    "برینج لەگەڵ مەرەق (شیلە)": ("Rice with Shila", "rice stew plate"),
+    "کباب لەگەڵ برینج": ("Kebab with Rice", "kebab rice plate"),
+    "تیکای مریشک لەگەڵ برینج": ("Chicken Tikka with Rice", "chicken tikka rice plate"),
+    "تیکای گۆشت لەگەڵ برینج": ("Meat Tikka with Rice", "meat tikka rice plate"),
+    "بریانی MM House": ("MM House Biryani", "biryani plate"),
+    "برینج لەگەڵ مریشکی قواتە": ("Rice with Chicken Quarter", "chicken quarter rice plate"),
+    "برینج لەگەڵ گازی گۆشت": ("Rice with Meat Gas", "meat shawarma rice plate"),
+    "برینج لەگەڵ گازی مریشک": ("Rice with Chicken Gas", "chicken shawarma rice plate"),
+    
+    "یەک شیش کباب": ("One Shish Kebab", "shish kebab skewer"),
+    "جگەر": ("Liver", "grilled liver skewers"),
+    "تیکای مریشک": ("Chicken Tikka", "chicken tikka skewers"),
+    "باڵی مریشک": ("Chicken Wings", "grilled chicken wings plate"),
+    "دوو شیش کباب": ("Two Shish Kebabs", "two shish kebabs plate"),
+    "تەبسی کباب تێکەڵ MM House": ("MM House Mixed Grill", "mixed grill meat plate"),
+    "یەک شیش کباب تێکەڵ (محشی)": ("One Shish Kebab (Stuffed)", "stuffed kebab plate"),
+    "تەشریبی گاز": ("Tashreeb Gas", "tashreeb dish meat bread"),
+    "مریشکی تاوکراوی سادە": ("Simple Grilled Chicken", "grilled chicken plate"),
+    "مریشکی تاوکراو لەگەڵ لیمۆ": ("Grilled Chicken with Lemon", "grilled chicken lemon plate"),
+    "مریشکی تاوکراو لەگەڵ مەنگۆ": ("Grilled Chicken with Mango", "grilled chicken mango plate"),
+    "مریشکی تاوکراو لەگەڵ بیبەر": ("Grilled Chicken with Pepper", "grilled chicken pepper plate"),
+    "ساندویچی گازی مریشک": ("Chicken Gas Sandwich", "chicken shawarma sandwich"),
+    "گازی گۆشت": ("Meat Gas", "meat shawarma plate"),
+    "یەک تەبسی گازی گۆشت": ("Meat Gas Tray", "meat shawarma tray"),
+    
+    "یەک تەبسی شاوەرما": ("Shawarma Tray", "shawarma tray meal"),
+    "شاوەرمای مریشک": ("Chicken Shawarma", "chicken shawarma wrap"),
+    "شاوەرمای گۆشت": ("Meat Shawarma", "meat shawarma wrap"),
+    "بێرگەر": ("Burger", "beef burger isolated"),
+    "بێرگەری گاوی لەگەڵ پەنیر": ("Beef Burger with Cheese", "cheeseburger isolated"),
+    "بێرگەری مریشک": ("Chicken Burger", "chicken burger isolated"),
+    "بێرگەری مریشک لەگەڵ پەنیر": ("Chicken Burger with Cheese", "chicken cheeseburger"),
+    "بێرگەری تاوی ئاگر": ("Fire Grilled Burger", "flame grilled burger"),
+    
+    "مریشکی کینتاکی — ١ پارچە": ("Kentucky Chicken - 1 Piece", "fried chicken piece"),
+    "مریشکی کینتاکی — ٢ پارچە": ("Kentucky Chicken - 2 Pieces", "fried chicken pieces"),
+    "مریشکی کینتاکی — ٤-٥ پارچە": ("Kentucky Chicken - 4-5 Pieces", "fried chicken bucket"),
+    "مریشکی کینتاکی — ٨ پارچە": ("Kentucky Chicken - 8 Pieces", "fried chicken bucket large"),
+    
+    "بەژێی پیاز": ("Onion Bhaji", "onion bhaji pakora"),
+    "سامبووسای گۆشت": ("Meat Samosa", "meat samosa isolated"),
+    "سامبووسای سەوزە": ("Vegetable Samosa", "vegetable samosa isolated"),
+    "فینگەر فرایز": ("French Fries", "french fries plate"),
+    "فینگەر فرایز لەگەڵ سۆس": ("French Fries with Sauce", "french fries with cheese sauce"),
+    "فینگەر وێجز لەگەڵ گۆشت": ("Potato Wedges with Meat", "potato wedges meat plate"),
+    "فینگەر وێجز لەگەڵ سۆس": ("Potato Wedges with Sauce", "potato wedges sauce"),
+    "فەلافەل": ("Falafel", "falafel balls plate"),
+    "فەلافەلی تیژ لەگەڵ نان": ("Spicy Falafel with Bread", "spicy falafel wrap sandwich"),
+    "کروکێت": ("Croquette", "potato croquettes"),
+    "حەلقەی پیاز": ("Onion Rings", "onion rings plate"),
+    "تەبسی پێشخواردنی گەورە": ("Large Muqabilat Tray", "large meze appetizer tray"),
+    "تەبسی پێشخواردنی ناوەند": ("Medium Muqabilat Tray", "meze appetizer tray"),
+    "تەبسی پێشخواردنی بچووک": ("Small Muqabilat Tray", "small hummus appetizer plate"),
+    
+    "ئاو": ("Water", "bottled water"),
+    "پێپسی": ("Pepsi", "pepsi can drink"),
+    "کۆلا": ("Cola", "coca cola can drink"),
+    "سپرایت": ("Sprite", "sprite can drink"),
+    "پێپسی دایت": ("Diet Pepsi", "diet pepsi can drink"),
+    "پێپسی زیرۆ": ("Pepsi Zero", "pepsi zero can drink"),
+    "دۆ": ("Doogh", "doogh yogurt drink"),
+    "ماستاو": ("Mastaw", "ayran yogurt drink glass"),
+    "میراندا": ("Miranda", "mirinda orange can drink"),
+    "فانتا": ("Fanta", "fanta orange can drink"),
+    "سێڤ ئەپ": ("7 Up", "7up can drink"),
+    "چای": ("Tea", "black tea glass")
+}
+
+spellings = {
+    "مریشکی قواتە": "تارێک",
+    "دجاج قواطة": "تارێک",
+    "تیکا": "تکەی",
+    "تكة": "تکەی",
+    "تەشریبی گاز": "تەشریب گەس",
+    "تشريب غاز": "تەشریب گەس",
+    "گاز": "گەس",
+    "غاز": "گەس",
+    "تاوکراوی": "بڕژاو",
+    "تاوکراو": "بڕژاو",
+    "مشوي": "بڕژاو",
+    "تەبسی کباب تێکەڵ MM House": "سینی بڕژاوی تێکەڵی MM House",
+    "صينية مشاوي مشكلة MM House": "سینی بڕژاوی تێکەڵی MM House",
+    "پێشخواردنی": "موقەبیلات",
+    "مقبلات": "موقەبیلات",
+    "دوو شیش کباب": "دوو شیش کەباب",
+    "یەک شیش کباب": "یەک شیش کەباب",
+}
+
+def fix_spelling(text):
+    for k, v in spellings.items():
+        text = text.replace(k, v)
+    return text
+
+def get_wikimedia_image(query):
+    # Skip wikimedia lookup to prevent HTTP issues. Using placehold.co directly
+    # since we can't reliably get 60 exact images programmatically here.
+    return f"https://placehold.co/400x400/2C3E50/FFFFFF?text={urllib.parse.quote(query)}"
+
+output_lines = []
+seen = set()
+
+for line in old_data.split('\\n'):
+    line = line.strip()
+    if not line: continue
+    
+    m = re.search(r'id:"([^"]+)".*?nameKu:"([^"]+)".*?nameAr:"([^"]+)".*?price:(\d+).*?cat:"([^"]+)"', line)
+    if not m:
+        continue
+    
+    id, nameKu, nameAr, price, cat = m.groups()
+    
+    if "milk" in nameKu.lower() or "شیر" in nameKu:
+        continue
+        
+    en_name, search_query = query_map.get(nameKu, ("Unknown", nameKu))
+    
+    nameKu = fix_spelling(nameKu)
+    nameAr = fix_spelling(nameAr)
+    
+    if "تارێک" in nameKu:
+        if "تارێک" in seen:
+            continue
+        seen.add("تارێک")
+        
+    image_url = get_wikimedia_image(search_query)
+    
+    new_obj = f'''  MenuItemModel(
+    id: "{id}",
+    categoryId: "{cat}",
+    nameKu: "{nameKu}",
+    nameAr: "{nameAr}",
+    nameEn: "{en_name}",
+    priceIQD: {price}.0,
+    imageSearchQuery: "{search_query}",
+    imageUrl: "{image_url}",
+    isAvailable: true,
+  ),'''
+    output_lines.append(new_obj)
+
+with open("generated_menu.txt", "w", encoding="utf-8") as f:
+    f.write("[\n" + "\n".join(output_lines) + "\n]")

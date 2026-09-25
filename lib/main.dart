@@ -240,14 +240,14 @@ class _MainLayoutState extends State<MainLayout> {
           lang: _lang,
           onConfirm: (payMethod, paid, discount, printReceipt) {
             final userProvider = UserProvider.of(context)!;
-            final subtotal = _cart.fold<double>(0, (s, ci) => s + (ci.item.price * ci.qty));
+            final subtotal = _cart.fold<double>(0, (s, ci) => s + (ci.item.priceIQD * ci.qty));
             final total = (subtotal - discount) < 0 ? 0.0 : (subtotal - discount);
               final newOrder = Order(
                 id: 'ord_$_orderNum',
                 numStr: _orderNum.toString().padLeft(4, '0'),
                 date: DateTime.now(),
                 cashier: _cashierName,
-                items: _cart.map((c) => OrderItem(id: c.item.id, nameKu: c.item.nameKu, nameAr: c.item.nameAr, price: c.item.price, qty: c.qty)).toList(),
+                items: _cart.map((c) => OrderItem(id: c.item.id, nameKu: c.item.nameKu, nameAr: c.item.nameAr, price: c.item.priceIQD, qty: c.qty)).toList(),
                 subtotal: subtotal,
                 discount: discount,
                 total: total,

@@ -8,64 +8,76 @@ enum ReportTab { daily, monthly, yearly }
 
 class MenuItemModel {
   String id;
+  String categoryId;
   String nameKu;
   String nameAr;
-  double price;
-  String cat;
-  String img;
-  bool active;
+  String nameEn;
+  double priceIQD;
+  String imageSearchQuery;
+  String imageUrl;
+  bool isAvailable;
 
   MenuItemModel({
     required this.id,
+    required this.categoryId,
     required this.nameKu,
     required this.nameAr,
-    required this.price,
-    required this.cat,
-    required this.img,
-    required this.active,
+    required this.nameEn,
+    required this.priceIQD,
+    required this.imageSearchQuery,
+    required this.imageUrl,
+    required this.isAvailable,
   });
 
   MenuItemModel copyWith({
     String? id,
+    String? categoryId,
     String? nameKu,
     String? nameAr,
-    double? price,
-    String? cat,
-    String? img,
-    bool? active,
+    String? nameEn,
+    double? priceIQD,
+    String? imageSearchQuery,
+    String? imageUrl,
+    bool? isAvailable,
   }) {
     return MenuItemModel(
       id: id ?? this.id,
+      categoryId: categoryId ?? this.categoryId,
       nameKu: nameKu ?? this.nameKu,
       nameAr: nameAr ?? this.nameAr,
-      price: price ?? this.price,
-      cat: cat ?? this.cat,
-      img: img ?? this.img,
-      active: active ?? this.active,
+      nameEn: nameEn ?? this.nameEn,
+      priceIQD: priceIQD ?? this.priceIQD,
+      imageSearchQuery: imageSearchQuery ?? this.imageSearchQuery,
+      imageUrl: imageUrl ?? this.imageUrl,
+      isAvailable: isAvailable ?? this.isAvailable,
     );
   }
 
   factory MenuItemModel.fromJson(Map<String, dynamic> json) {
     return MenuItemModel(
       id: json['id'] as String,
+      categoryId: json['categoryId'] as String? ?? json['cat'] as String? ?? '',
       nameKu: json['nameKu'] as String,
       nameAr: json['nameAr'] as String,
-      price: (json['price'] as num).toDouble(),
-      cat: json['cat'] as String,
-      img: json['img'] as String,
-      active: json['active'] as bool? ?? true,
+      nameEn: json['nameEn'] as String? ?? '',
+      priceIQD: (json['priceIQD'] ?? json['price'] as num).toDouble(),
+      imageSearchQuery: json['imageSearchQuery'] as String? ?? '',
+      imageUrl: json['imageUrl'] as String? ?? json['img'] as String? ?? '',
+      isAvailable: json['isAvailable'] as bool? ?? json['active'] as bool? ?? true,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'categoryId': categoryId,
       'nameKu': nameKu,
       'nameAr': nameAr,
-      'price': price,
-      'cat': cat,
-      'img': img,
-      'active': active,
+      'nameEn': nameEn,
+      'priceIQD': priceIQD,
+      'imageSearchQuery': imageSearchQuery,
+      'imageUrl': imageUrl,
+      'isAvailable': isAvailable,
     };
   }
 }

@@ -45,9 +45,9 @@ class _POSScreenState extends State<POSScreen> {
   Widget build(BuildContext context) {
     final t = (String k) => TR[widget.lang]?[k] ?? k;
 
-    final activeItems = widget.menuItems.where((m) => m.active).toList();
+    final activeItems = widget.menuItems.where((m) => m.isAvailable).toList();
     final filtered = activeItems.where((m) {
-      final inCat = _selectedCat == "all" || m.cat == _selectedCat;
+      final inCat = _selectedCat == "all" || m.categoryId == _selectedCat;
       final q = _search.toLowerCase();
       final inSearch = q.isEmpty ||
           m.nameKu.toLowerCase().contains(q) ||
@@ -55,7 +55,7 @@ class _POSScreenState extends State<POSScreen> {
       return inCat && inSearch;
     }).toList();
 
-    final subtotal = widget.cart.fold<double>(0, (s, ci) => s + (ci.item.price * ci.qty));
+    final subtotal = widget.cart.fold<double>(0, (s, ci) => s + (ci.item.priceIQD * ci.qty));
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -402,7 +402,7 @@ class _POSScreenState extends State<POSScreen> {
                   ClipRRect(
                     borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
                     child: Image.network(
-                      item.img,
+                      item.imageUrl,
                       fit: BoxFit.cover,
                       errorBuilder: (ctx, _, __) => Container(color: AppColors.bgLight),
                     ),
@@ -463,7 +463,7 @@ class _POSScreenState extends State<POSScreen> {
                         child: const Icon(LucideIcons.plus, color: Colors.white, size: 14),
                       ),
                       Text(
-                        fp(item.price),
+                        fp(item.priceIQD),
                         style: const TextStyle(fontFamily: AppFonts.jakarta, fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.gold),
                       ),
                     ],
@@ -517,7 +517,7 @@ class _POSScreenState extends State<POSScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                fp(ci.item.price * ci.qty),
+                fp(ci.item.priceIQD * ci.qty),
                 style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textDark, fontFamily: AppFonts.jakarta),
               ),
               Row(

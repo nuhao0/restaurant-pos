@@ -1,0 +1,13 @@
+[
+  MenuItemModel(
+    id: "p01",
+    categoryId: "pasta",
+    nameKu: "پاستای ئەلفریدۆ",
+    nameAr: "معكرونة الفريدو",
+    nameEn: "Alfredo Pasta",
+    priceIQD: 5000.0,
+    imageSearchQuery: "alfredo pasta plate",
+    imageUrl: "https://placehold.co/400x400/2C3E50/FFFFFF?text=alfredo%20pasta%20plate",
+    isAvailable: true,
+  ),
+]

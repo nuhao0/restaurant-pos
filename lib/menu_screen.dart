@@ -27,7 +27,7 @@ class _MenuScreenState extends State<MenuScreen> {
   void _toggleActive(String id) {
     final newItems = widget.menuItems.map((m) {
       if (m.id == id) {
-        return m.copyWith(active: !m.active);
+        return m.copyWith(isAvailable: !m.isAvailable);
       }
       return m;
     }).toList();
@@ -131,7 +131,7 @@ class _MenuScreenState extends State<MenuScreen> {
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(8),
                                   child: Image.network(
-                                    m.img,
+                                    m.imageUrl,
                                     width: 48,
                                     height: 48,
                                     fit: BoxFit.cover,
@@ -147,15 +147,15 @@ class _MenuScreenState extends State<MenuScreen> {
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                 decoration: BoxDecoration(color: AppColors.bgLight, borderRadius: BorderRadius.circular(8)),
                                 child: Text(
-                                  CATS[m.cat] != null ? (widget.lang == Lang.ku ? CATS[m.cat]![Lang.ku]! : CATS[m.cat]![Lang.ar]!) : m.cat,
+                                  CATS[m.categoryId] != null ? (widget.lang == Lang.ku ? CATS[m.categoryId]![Lang.ku]! : CATS[m.categoryId]![Lang.ar]!) : m.categoryId,
                                   style: const TextStyle(fontFamily: AppFonts.cairo, fontSize: 12, color: AppColors.textMuted),
                                 ),
                               ),
                             ),
-                            DataCell(Text(fp(m.price), style: const TextStyle(fontFamily: AppFonts.jakarta, fontWeight: FontWeight.bold, color: AppColors.textDark))),
+                            DataCell(Text(fp(m.priceIQD), style: const TextStyle(fontFamily: AppFonts.jakarta, fontWeight: FontWeight.bold, color: AppColors.textDark))),
                             DataCell(
                               Switch(
-                                value: m.active,
+                                value: m.isAvailable,
                                 onChanged: (_) => _toggleActive(m.id),
                                 activeColor: AppColors.navy,
                               ),

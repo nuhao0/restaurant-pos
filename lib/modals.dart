@@ -52,7 +52,7 @@ class __CheckoutModalState extends State<_CheckoutModal> {
   @override
   Widget build(BuildContext context) {
     final t = (String k) => TR[widget.lang]?[k] ?? k;
-    final subtotal = widget.cart.fold<double>(0, (s, ci) => s + (ci.item.price * ci.qty));
+    final subtotal = widget.cart.fold<double>(0, (s, ci) => s + (ci.item.priceIQD * ci.qty));
     final total = (subtotal - _discount) < 0 ? 0.0 : (subtotal - _discount);
     final paid = _payMethod == PayMethod.card ? total : (double.tryParse(_paidInput) ?? total); // Default to total if nothing typed
     final change = (paid - total) < 0 ? 0.0 : (paid - total);
@@ -101,7 +101,7 @@ class __CheckoutModalState extends State<_CheckoutModal> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text("${nm(ci.item, widget.lang)} ×${ci.qty}", style: const TextStyle(fontFamily: AppFonts.cairo, fontWeight: FontWeight.w500, color: AppColors.textDark)),
-                                Text(fp(ci.item.price * ci.qty), style: const TextStyle(fontFamily: AppFonts.jakarta, fontWeight: FontWeight.bold, color: AppColors.textDark)),
+                                Text(fp(ci.item.priceIQD * ci.qty), style: const TextStyle(fontFamily: AppFonts.jakarta, fontWeight: FontWeight.bold, color: AppColors.textDark)),
                               ],
                             ),
                           );
