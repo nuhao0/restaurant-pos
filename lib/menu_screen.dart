@@ -24,6 +24,101 @@ class MenuScreen extends StatefulWidget {
 class _MenuScreenState extends State<MenuScreen> {
   String _search = "";
 
+
+  void _deleteItem(String id) {
+    final newItems = widget.menuItems.where((m) => m.id != id).toList();
+    widget.onUpdate(newItems);
+  }
+
+  void _showItemDialog(MenuItemModel? item) {
+    final t = (String k) => TR[widget.lang]?[k] ?? k;
+    final isNew = item == null;
+    
+    final idCtrl = TextEditingController(text: item?.id ?? "new_${DateTime.now().millisecondsSinceEpoch}");
+    final kuCtrl = TextEditingController(text: item?.nameKu ?? "");
+    final arCtrl = TextEditingController(text: item?.nameAr ?? "");
+    final priceCtrl = TextEditingController(text: item != null ? item.priceIQD.toInt().toString() : "");
+    final catCtrl = TextEditingController(text: item?.categoryId ?? "pasta");
+    final imgUrlCtrl = TextEditingController(text: item?.imageUrl ?? "");
+    
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          backgroundColor: AppColors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text(isNew ? t("addItem") : t("editItem"), style: const TextStyle(fontFamily: AppFonts.cairo, fontWeight: FontWeight.bold)),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: kuCtrl,
+                  decoration: InputDecoration(labelText: t("kurdishName"), labelStyle: const TextStyle(fontFamily: AppFonts.cairo)),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: arCtrl,
+                  decoration: InputDecoration(labelText: t("arabicName"), labelStyle: const TextStyle(fontFamily: AppFonts.cairo)),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: priceCtrl,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(labelText: t("price"), labelStyle: const TextStyle(fontFamily: AppFonts.cairo)),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: catCtrl,
+                  decoration: InputDecoration(labelText: t("category") + " (pasta, grills, shawarma, kentucky, sides, drinks)", labelStyle: const TextStyle(fontFamily: AppFonts.cairo)),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: imgUrlCtrl,
+                  decoration: const InputDecoration(labelText: "Image URL", labelStyle: TextStyle(fontFamily: AppFonts.cairo)),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(t("close"), style: const TextStyle(fontFamily: AppFonts.cairo, color: AppColors.textMuted)),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: AppColors.navy, foregroundColor: Colors.white),
+              onPressed: () {
+                final newItem = MenuItemModel(
+                  id: isNew ? idCtrl.text : item!.id,
+                  categoryId: catCtrl.text.isEmpty ? "pasta" : catCtrl.text,
+                  nameKu: kuCtrl.text,
+                  nameAr: arCtrl.text,
+                  nameEn: item?.nameEn ?? kuCtrl.text,
+                  priceIQD: double.tryParse(priceCtrl.text) ?? 0,
+                  imageSearchQuery: item?.imageSearchQuery ?? "food",
+                  imageUrl: imgUrlCtrl.text.isEmpty ? "https://placehold.co/400?text=Image" : imgUrlCtrl.text,
+                  isAvailable: item?.isAvailable ?? true,
+                );
+                
+                final newItems = List<MenuItemModel>.from(widget.menuItems);
+                if (isNew) {
+                  newItems.add(newItem);
+                } else {
+                  final idx = newItems.indexWhere((x) => x.id == item!.id);
+                  if (idx != -1) newItems[idx] = newItem;
+                }
+                
+                widget.onUpdate(newItems);
+                Navigator.pop(ctx);
+              },
+              child: Text(t("save"), style: const TextStyle(fontFamily: AppFonts.cairo)),
+            ),
+          ]
+        );
+      }
+    );
+  }
+
   void _toggleActive(String id) {
     final newItems = widget.menuItems.map((m) {
       if (m.id == id) {
@@ -55,7 +150,7 @@ class _MenuScreenState extends State<MenuScreen> {
               ElevatedButton.icon(
                 icon: const Icon(LucideIcons.plusCircle, size: 16),
                 label: Text(t("addItem")),
-                onPressed: () {},
+                onPressed: () => _showItemDialog(null),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.navy,
                   foregroundColor: Colors.white,
