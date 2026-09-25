@@ -74,7 +74,7 @@ final List<MenuItemModel> INITIAL_MENU = [
     nameEn: "Alfredo Pasta",
     priceIQD: 5000.0,
     imageSearchQuery: "alfredo pasta plate",
-    imageUrl: "https://placehold.co/400x400/2C3E50/FFFFFF?text=alfredo%20pasta%20plate",
+    imageUrl: "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=320&h=220&fit=crop&auto=format&q=80",
     isAvailable: true,
   ),
   MenuItemModel(
@@ -85,7 +85,7 @@ final List<MenuItemModel> INITIAL_MENU = [
     nameEn: "Alfredo Pasta with Meat",
     priceIQD: 5000.0,
     imageSearchQuery: "alfredo pasta plate meat",
-    imageUrl: "https://placehold.co/400x400/2C3E50/FFFFFF?text=alfredo%20pasta%20plate%20meat",
+    imageUrl: "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=320&h=220&fit=crop&auto=format&q=80",
     isAvailable: true,
   ),
   MenuItemModel(
@@ -96,7 +96,7 @@ final List<MenuItemModel> INITIAL_MENU = [
     nameEn: "Red Sauce Pasta with Chicken",
     priceIQD: 5000.0,
     imageSearchQuery: "red sauce pasta chicken",
-    imageUrl: "https://placehold.co/400x400/2C3E50/FFFFFF?text=red%20sauce%20pasta%20chicken",
+    imageUrl: "https://images.unsplash.com/photo-1567608346072-b31551b7ee48?w=320&h=220&fit=crop&auto=format&q=80",
     isAvailable: true,
   ),
   MenuItemModel(
@@ -129,7 +129,7 @@ final List<MenuItemModel> INITIAL_MENU = [
     nameEn: "Mozzarella Pasta",
     priceIQD: 6000.0,
     imageSearchQuery: "mozzarella pasta plate",
-    imageUrl: "https://placehold.co/400x400/2C3E50/FFFFFF?text=mozzarella%20pasta%20plate",
+    imageUrl: "https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?w=320&h=220&fit=crop&auto=format&q=80",
     isAvailable: true,
   ),
   MenuItemModel(
@@ -140,13 +140,13 @@ final List<MenuItemModel> INITIAL_MENU = [
     nameEn: "Rizo",
     priceIQD: 5000.0,
     imageSearchQuery: "rizo chicken rice",
-    imageUrl: "https://placehold.co/400x400/2C3E50/FFFFFF?text=rizo%20chicken%20rice",
+    imageUrl: "https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=320&h=220&fit=crop&auto=format&q=80",
     isAvailable: true,
   ),
   MenuItemModel(
     id: "p08",
     categoryId: "pasta",
-    nameKu: "برینج لەگەڵ مەرەق (شیلە)",
+    nameKu: "برینج لەگەڵ مەرەق",
     nameAr: "أرز مع المرق (شيلة)",
     nameEn: "Rice with Shila",
     priceIQD: 3000.0,
@@ -162,7 +162,7 @@ final List<MenuItemModel> INITIAL_MENU = [
     nameEn: "Kebab with Rice",
     priceIQD: 5000.0,
     imageSearchQuery: "kebab rice plate",
-    imageUrl: "https://placehold.co/400x400/2C3E50/FFFFFF?text=kebab%20rice%20plate",
+    imageUrl: "https://images.unsplash.com/photo-1544025162-d76538fd41e3?w=320&h=220&fit=crop&auto=format&q=80",
     isAvailable: true,
   ),
   MenuItemModel(
@@ -173,7 +173,7 @@ final List<MenuItemModel> INITIAL_MENU = [
     nameEn: "Chicken Tikka with Rice",
     priceIQD: 4000.0,
     imageSearchQuery: "chicken tikka rice plate",
-    imageUrl: "https://placehold.co/400x400/2C3E50/FFFFFF?text=chicken%20tikka%20rice%20plate",
+    imageUrl: "https://images.unsplash.com/photo-1598103442097-8b74394b95c8?w=320&h=220&fit=crop&auto=format&q=80",
     isAvailable: true,
   ),
   MenuItemModel(
@@ -184,7 +184,7 @@ final List<MenuItemModel> INITIAL_MENU = [
     nameEn: "Meat Tikka with Rice",
     priceIQD: 5000.0,
     imageSearchQuery: "meat tikka rice plate",
-    imageUrl: "https://placehold.co/400x400/2C3E50/FFFFFF?text=meat%20tikka%20rice%20plate",
+    imageUrl: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=320&h=220&fit=crop&auto=format&q=80",
     isAvailable: true,
   ),
   MenuItemModel(
@@ -195,7 +195,7 @@ final List<MenuItemModel> INITIAL_MENU = [
     nameEn: "MM House Biryani",
     priceIQD: 5000.0,
     imageSearchQuery: "biryani plate",
-    imageUrl: "https://placehold.co/400x400/2C3E50/FFFFFF?text=biryani%20plate",
+    imageUrl: "https://images.unsplash.com/photo-1603360946369-dc9bb6258143?w=320&h=220&fit=crop&auto=format&q=80",
     isAvailable: true,
   ),
   MenuItemModel(
@@ -206,7 +206,7 @@ final List<MenuItemModel> INITIAL_MENU = [
     nameEn: "Rice with Chicken Quarter",
     priceIQD: 5500.0,
     imageSearchQuery: "chicken quarter rice plate",
-    imageUrl: "https://placehold.co/400x400/2C3E50/FFFFFF?text=chicken%20quarter%20rice%20plate",
+    imageUrl: "https://images.unsplash.com/photo-1536304929831-ee1ca9d44906?w=320&h=220&fit=crop&auto=format&q=80",
     isAvailable: true,
   ),
   MenuItemModel(
@@ -261,7 +261,7 @@ final List<MenuItemModel> INITIAL_MENU = [
     nameEn: "Chicken Tikka",
     priceIQD: 2000.0,
     imageSearchQuery: "chicken tikka skewers",
-    imageUrl: "https://placehold.co/400x400/2C3E50/FFFFFF?text=chicken%20tikka%20skewers",
+    imageUrl: "https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=320&h=220&fit=crop&auto=format&q=80",
     isAvailable: true,
   ),
   MenuItemModel(
@@ -272,7 +272,7 @@ final List<MenuItemModel> INITIAL_MENU = [
     nameEn: "Chicken Wings",
     priceIQD: 3500.0,
     imageSearchQuery: "grilled chicken wings plate",
-    imageUrl: "https://placehold.co/400x400/2C3E50/FFFFFF?text=grilled%20chicken%20wings%20plate",
+    imageUrl: "https://images.unsplash.com/photo-1527477396000-e27163b481c2?w=320&h=220&fit=crop&auto=format&q=80",
     isAvailable: true,
   ),
   MenuItemModel(
@@ -316,7 +316,7 @@ final List<MenuItemModel> INITIAL_MENU = [
     nameEn: "Tashreeb Gas",
     priceIQD: 5000.0,
     imageSearchQuery: "tashreeb dish meat bread",
-    imageUrl: "https://placehold.co/400x400/2C3E50/FFFFFF?text=tashreeb%20dish%20meat%20bread",
+    imageUrl: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=320&h=220&fit=crop&auto=format&q=80",
     isAvailable: true,
   ),
   MenuItemModel(
@@ -371,7 +371,7 @@ final List<MenuItemModel> INITIAL_MENU = [
     nameEn: "Chicken Gas Sandwich",
     priceIQD: 3500.0,
     imageSearchQuery: "chicken shawarma sandwich",
-    imageUrl: "https://placehold.co/400x400/2C3E50/FFFFFF?text=chicken%20shawarma%20sandwich",
+    imageUrl: "https://images.unsplash.com/photo-1550950158-d0d960dff596?w=320&h=220&fit=crop&auto=format&q=80",
     isAvailable: true,
   ),
   MenuItemModel(
@@ -434,7 +434,7 @@ final List<MenuItemModel> INITIAL_MENU = [
     nameEn: "Burger",
     priceIQD: 3500.0,
     imageSearchQuery: "burger",
-    imageUrl: "https://placehold.co/400x400/2C3E50/FFFFFF?text=burger",
+    imageUrl: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=320&h=220&fit=crop&auto=format&q=80",
     isAvailable: true,
   ),  MenuItemModel(
     id: "s05",
@@ -484,7 +484,7 @@ final List<MenuItemModel> INITIAL_MENU = [
     nameEn: "Kentucky Chicken - 1 Piece",
     priceIQD: 2000.0,
     imageSearchQuery: "Kentucky chicken one piece",
-    imageUrl: "https://placehold.co/400x400/2C3E50/FFFFFF?text=Kentucky%20chicken%20one%20piece",
+    imageUrl: "https://images.unsplash.com/photo-1562967914-608f82629710?w=320&h=220&fit=crop&auto=format&q=80",
     isAvailable: true,
   ),  MenuItemModel(
     id: "k02",
@@ -524,7 +524,7 @@ final List<MenuItemModel> INITIAL_MENU = [
     nameEn: "Onion Bhaji",
     priceIQD: 3000.0,
     imageSearchQuery: "onion bhaji",
-    imageUrl: "https://placehold.co/400x400/2C3E50/FFFFFF?text=onion%20bhaji",
+    imageUrl: "https://images.unsplash.com/photo-1541014741259-de529411b96a?w=320&h=220&fit=crop&auto=format&q=80",
     isAvailable: true,
   ),  MenuItemModel(
     id: "a02",
@@ -534,7 +534,7 @@ final List<MenuItemModel> INITIAL_MENU = [
     nameEn: "Meat Sambusa",
     priceIQD: 3500.0,
     imageSearchQuery: "meat sambusa",
-    imageUrl: "https://placehold.co/400x400/2C3E50/FFFFFF?text=meat%20sambusa",
+    imageUrl: "https://images.unsplash.com/photo-1601050690597-df0568f70950?w=320&h=220&fit=crop&auto=format&q=80",
     isAvailable: true,
   ),  MenuItemModel(
     id: "a03",
@@ -554,7 +554,7 @@ final List<MenuItemModel> INITIAL_MENU = [
     nameEn: "Finger Fries",
     priceIQD: 2000.0,
     imageSearchQuery: "finger fries",
-    imageUrl: "https://placehold.co/400x400/2C3E50/FFFFFF?text=finger%20fries",
+    imageUrl: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=320&h=220&fit=crop&auto=format&q=80",
     isAvailable: true,
   ),  MenuItemModel(
     id: "a05",
@@ -634,7 +634,7 @@ final List<MenuItemModel> INITIAL_MENU = [
     nameEn: "Large Appetizer Platter",
     priceIQD: 4000.0,
     imageSearchQuery: "large appetizer platter",
-    imageUrl: "https://placehold.co/400x400/2C3E50/FFFFFF?text=large%20appetizer%20platter",
+    imageUrl: "https://images.unsplash.com/photo-1577303935007-0d306ee638cf?w=320&h=220&fit=crop&auto=format&q=80",
     isAvailable: true,
   ),  MenuItemModel(
     id: "a13",
@@ -664,7 +664,7 @@ final List<MenuItemModel> INITIAL_MENU = [
     nameEn: "Water",
     priceIQD: 250.0,
     imageSearchQuery: "bottled water",
-    imageUrl: "https://placehold.co/400x400/2C3E50/FFFFFF?text=bottled%20water",
+    imageUrl: "https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=320&h=220&fit=crop&auto=format&q=80",
     isAvailable: true,
   ),  MenuItemModel(
     id: "d02",
@@ -674,7 +674,7 @@ final List<MenuItemModel> INITIAL_MENU = [
     nameEn: "Pepsi",
     priceIQD: 500.0,
     imageSearchQuery: "Pepsi",
-    imageUrl: "https://placehold.co/400x400/2C3E50/FFFFFF?text=Pepsi",
+    imageUrl: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=320&h=220&fit=crop&auto=format&q=80",
     isAvailable: true,
   ),  MenuItemModel(
     id: "d03",
@@ -724,7 +724,7 @@ final List<MenuItemModel> INITIAL_MENU = [
     nameEn: "Do",
     priceIQD: 1000.0,
     imageSearchQuery: "Do Kurdish traditional drink",
-    imageUrl: "https://placehold.co/400x400/2C3E50/FFFFFF?text=Do%20Kurdish%20traditional%20drink",
+    imageUrl: "https://images.unsplash.com/photo-1558113583-d75f23fcb8a9?w=320&h=220&fit=crop&auto=format&q=80",
     isAvailable: true,
   ),
   MenuItemModel(
@@ -775,7 +775,7 @@ final List<MenuItemModel> INITIAL_MENU = [
     nameEn: "Tea",
     priceIQD: 250.0,
     imageSearchQuery: "Iraqi tea",
-    imageUrl: "https://placehold.co/400x400/2C3E50/FFFFFF?text=Iraqi%20tea",
+    imageUrl: "https://images.unsplash.com/photo-1564890369478-c89ca3d9cde4?w=320&h=220&fit=crop&auto=format&q=80",
     isAvailable: true,
   ),
 ];
