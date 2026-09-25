@@ -260,11 +260,11 @@ class _MenuScreenState extends State<MenuScreen> {
                                 children: [
                                   IconButton(
                                     icon: const Icon(LucideIcons.edit2, size: 16, color: AppColors.textMuted),
-                                    onPressed: () {},
+                                    onPressed: () => _showItemDialog(m),
                                   ),
                                   IconButton(
                                     icon: const Icon(LucideIcons.trash2, size: 16, color: AppColors.errorText),
-                                    onPressed: () {},
+                                    onPressed: () => _deleteItem(m.id),
                                   ),
                                 ],
                               ),
